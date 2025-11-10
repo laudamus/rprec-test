@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Realpacking Recorder API Test</h1>
+    <ul>
+      <li>바코드 입력란에 테스트코드를 입력 후 엔터를 눌러주세요.</li>
+      <li>현재 ip 호출은 브라우저 보안정책상 CORS 에러를 발생시킵니다.</li>
+    </ul>
+    <input type="text" width="100" id="ip" value="localhost" /> IP<br />
+    <input type="text" width="100" id="port" value="3000" /> PORT<br />
+    <input
+      type="text"
+      width="100"
+      id="barcode"
+      name="barcode"
+      onkeypress="if(event.keyCode==13) {sendText(this.value); return false;}"
+    />
+    Barcode<br /><br />
+    <button type="button" onclick="sendText('INBET00000001')">촬영완료</button>
+    <button type="button" onclick="sendText('INBET00000002')">촬영취소</button>
+    <button type="button" onclick="sendText('INBET00000003')">일시정지</button>
+    <button type="button" onclick="sendText('INBET00000004')">재시작</button>
+    <button type="button" onclick="sendText('INBET00000005')">촬영보류</button>
+    <button type="button" onclick="getStatus()">상태호출</button>
+    <div id="state"></div>
+  </body>
+</html>
+<script>
+  async function sendText(code) {
+    const ip = document.getElementById("ip").value;
+    const port = document.getElementById("port").value;
+
+    // 실제 전송
+    const res = await fetch("http://" + ip + ":" + port + "/", {
+      method: "POST",
+      mode: "cors",
+      headers: { "content-type": "text/plain" },
+      body: encodeURI(code),
+      targetAddressSpace: "loopback",
+    });
+
+    if (res.status === 201) {
+      document.getElementById("state").innerHTML = "Send Okay : " + code;
+    } else {
+      const t = await res.text().catch(() => "");
+      document.getElementById("state").innerHTML =
+        "Send Error : HTTP " + res.status + (t ? " - " + t : "");
+    }
+  }
+
+  async function getStatus() {
+    const ip = document.getElementById("ip").value;
+    const port = document.getElementById("port").value;
+
+    const res = await fetch("http://" + ip + ":" + port + "/", {
+      method: "GET",
+      mode: "cors",
+      headers: { "content-type": "text/plain" },
+      targetAddressSpace: "loopback",
+    });
+
+    if (res.status === 200) {
+      const text = await res.text();
+      document.getElementById("state").innerHTML = "Get Status Okay : " + text;
+    } else {
+      document.getElementById("state").innerHTML =
+        "Get Status Error : HTTP " + res.status;
+    }
+  }
+</script>
