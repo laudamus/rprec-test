@@ -19,7 +19,11 @@
       width="100"
       id="barcode"
       name="barcode"
-      onkeypress="if(event.keyCode==13) {sendText(this.value); return false;}"
+      onkeypress="if(event.keyCode==13) {
+          sendText(this.value);
+          this.value = '';
+          return false;
+      }"
     />
     Barcode<br /><br />
     <button type="button" onclick="sendText('INBET00000001')">촬영완료</button>
